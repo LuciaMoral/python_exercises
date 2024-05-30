@@ -3,7 +3,6 @@
 def show_contacts(contact_list: dict):
         if len(contact_list) > 0:
             for contact, data in contact_list.items():
-                print(contact, data)
                 print(f"Contact: {contact}")
                 print(f"Phone: {data[0]}")
                 print(f"Email: {data[1]}")
