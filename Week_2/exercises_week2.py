@@ -122,6 +122,56 @@ while(i <= user_input):
 average = sum / user_input
 print(f"Your average mark is: {round(average, 2)}")
 
+
+
+# 5. to do task programme
+
+def show_tasks(task_list: list):
+    if len(task_list) > 0:
+        for task in task_list:
+            print(task)
+    else:
+        print("there are no tasks in your list yet")
+
+def complete_task(task_list: list):
+    show_tasks(task_list)
+    completed = int(input("enter number of the task you wish to mark as complete: "))
+    if completed > 0 and completed <= len(task_list):
+        if "done" in task_list[completed - 1]:
+            print("This task is already completed")
+        else:
+            task_list[completed - 1] = "done" + "--" + task_list[completed - 1]
+            print("this task has been completed")
+
+    else:
+        print("Number incorrect, please try again")
+
+
+def add_task(task_list: list):
+    task = input("Enter task: ")
+    task_list.append(task)
+    print(f"{task} has been added to your todo list")
+
+my_list = []
+while True:
+
+    print("1. Add task")
+    print("2. Mark task as complete")
+    print("3. Show pending tasks")
+    print("4. Exit")
+    option = int(input("Select option: "))
+
+    if option == 1:
+        add_task(my_list)
+    if option == 2:
+        complete_task(my_list)
+    if option == 3:
+        show_tasks(my_list)
+    if option == 4:
+        print("Exiting...")
+        break
+
+
 # 6. create discount calculator that calculates final price of a product that the user enters
 
 price = int(input("Enter price of product you wish to purchase: "))
