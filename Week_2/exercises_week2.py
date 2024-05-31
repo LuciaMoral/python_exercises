@@ -51,6 +51,10 @@ while True:
         print("enter a valid number")
 
 
+
+# 3. contact list: name, phone no and email. Search user info and display
+
+
 def show_contacts(contact_list: dict):
         if len(contact_list) > 0:
             for contact, data in contact_list.items():
@@ -59,8 +63,6 @@ def show_contacts(contact_list: dict):
                 print(f"Email: {data[1]}")
         else:
             print("There are no contacts registered")
-
-# 3. contact list: name, phone no and email. Search user info and display
 
 def search_contact(contact_list: dict):
      if len(contact_list) > 0:
