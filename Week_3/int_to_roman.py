@@ -8,7 +8,7 @@ class Integer:
     def int_to_roman(self):
          i = 0
          while self.num > 0:
-              for _ in range(self.num // self.numbers[i]):
+              for i in range(self.num // self.numbers[i]):
                 self.roman_numeral = self.roman_numeral + self.romans[i]
                 self.num -= self.numbers[i]
               i += 1
