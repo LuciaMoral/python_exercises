@@ -19,4 +19,4 @@ class Roman:
 
 
 roman = Roman()
-roman.roman_to_int()
+roman.roman_to_int("CIV")
