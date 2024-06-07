@@ -1,18 +1,22 @@
 class Integer:
     def __init__(self):
-         self.numbers = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
-         self.romans = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
-         self.roman_numeral = ""
-         self.num = int(input("enter any number: \n"))
+        self.num = int(input("enter any number: \n"))
 
     def int_to_roman(self):
-         i = 0
-         while self.num > 0:
-              for i in range(self.num // self.numbers[i]):
-                self.roman_numeral = self.roman_numeral + self.romans[i]
-                self.num -= self.numbers[i]
-              i += 1
-         return self.num
+        roman_numeral = ""
+        numbers = [1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000]
+        romans = ["I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"]
+        i = 12
+
+        while self.num:
+            div = self.num // numbers[i]
+            self.num %= numbers[i]
+
+            while div:
+              roman_numeral += romans[i]
+              div -= 1
+            i -= 1
+        return roman_numeral
 
 num = Integer()
-num.int_to_roman()
+print(num.int_to_roman())
