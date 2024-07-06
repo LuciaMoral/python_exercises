@@ -1,113 +1,132 @@
+from datetime import datetime
 from peewee import *
 import csv
 
 db = SqliteDatabase("clinic.db")
 
-class ClinicalEntry(Model):
-    patient_name = CharField()
-    doctor = CharField()
-    specialty = CharField()
-    medical_history = CharField()
-
-
+class BaseModel(Model):
     class Meta:
         database = db
 
+class PatientModel(BaseModel):
+    id = AutoField(primary_key = True)
+    name = CharField(unique = True)
+    last_name = CharField(unique = True)
+    treating_doctor = CharField(unique = True)
+    specialty = CharField(unique = True)
+    medical_history = CharField(unique = True)
 
 def connect():
     db.connect()
-    db.create_tables([ClinicalEntry], safe=True)
+    db.create_tables([PatientModel], safe= True)
 
-class Medical(object):
-    def __init__(self, patient_name=None, doctor=None, specialty=None, medical_history=None):
-        self.patient_name = patient_name
-        self.doctor = doctor
-        self.specialty = specialty
-        self.medical_history = medical_history
+class Person:
+    def __init__(self, name, last_name):
+        self.name = name
+        self.last_name = last_name
 
-    def create_doctor_profile(self):
-        entry = ClinicalEntry(doctor = self.doctor, specialty = self.specialty)
+
+class Doctor(Person):
+    def __init__(self, name, last_name):
+        super().__init__(name, last_name)
+        self.specialty = PatientModel.specialty
+
+    def add_doctor(self):
+        entry = PatientModel(name = self.name, last_name = self.last_name)
         entry.save()
+
+    @staticmethod
+    def view_doctors():
+        for entry in PatientModel.select():
+            print(f"id: {entry.id} - name: {entry.name} {entry.last_name} - specialty: {entry.specialty}")
+
+class Patient(Person):
+    def __init__(self, name, last_name, medical_history):
+        super().__init__(name, last_name)
+        self.medical_history = PatientModel.medical_history
+        self.treating_doctor = PatientModel.treating_doctor
 
     def create_history(self):
-        entry = ClinicalEntry(patient_name = self.patient_name, doctor= self.doctor, medical_history = self.medical_history, specialty = self.specialty)
+        entry = PatientModel(name = self.name, last_name = self.last_name)
         entry.save()
 
-    def view_doctors(self):
-        for entry in ClinicalEntry.select():
-            print(f"Doctor: {entry.doctor} - Specialty: {entry.specialty}")
-
-    def update_medical_history(self, id, patient_name, doctor, specialty, medical_history):
-        query = ClinicalEntry.update(patient_name = patient_name, doctor = doctor, specialty = specialty, medical_history = medical_history)
+    def update_medical_history(self):
+        query = PatientModel.update(name = self.name, last_name = self.last_name)
         query.execute()
-        print("The patient's history has been saved.")
+        print("the patient's history has been updated")
 
-    def delete_medical_history(self, id):
-        query = ClinicalEntry.delete().where(ClinicalEntry.id == id)
-        deleted_records = query.execute()
-        print(f"Deleted records: {deleted_records}")
+    @staticmethod
+    def delete_medical_history(patient_id):
+        query = PatientModel.delete().where(PatientModel.id == patient_id)
+        query.execute()
+        print(f"Deleted patient with ID {patient_id}")
 
-    def export_medical_records(self, data=[]):
-        with open("file.csv", "w+") as file:
-            file = csv.DictWriter(file, fieldnames=["id","patient_name", "doctor", "speciality","medical_history" ])
-        file.writeheader()
+    @staticmethod
+    def view_patients():
+        for entry in PatientModel.select():
+            print(f"ID: {entry.id}, Name: {entry.name} {entry.last_name}")
 
-        for line in data:
-                file.writerow(line)
+    @staticmethod
+    def export_medical_records():
+        with open("clinic.csv", "w+") as csv_file:
+            fields = ["id", "name", "last_name", "treating_doctor"]
+            csv_output = csv.DictWriter(csv_file, delimiter= ",", quotechar='"')
+            csv_output.writeheader()
 
+            for line in PatientModel.select().dicts():
+                csv_output.writerow(line)
+        print("Medical history has been exported")
 
 def menu():
     while True:
         print("Choose one of the following options: ")
-        print("1. Create a new doctor's profile")
-        print("2. Create patient's medical history")
-        print("3. Update patient's medical history")
-        print("4. Delete patient's medical history")
-        print("5. View doctors")
-        print("6. Export records to a csv file")
+        print("1. Create patient's medical history")
+        print("2. Update patient's medical history")
+        print("3. Delete patient's medical history")
+        print("4. List patients")
+        print("5. Export records to a csv file")
+        print("6. Add a new doctor")
+        print("7. List all doctors")
         print("0. Exit")
 
         option = int(input(" "))
 
         if option == 1:
-            doctor_name = input("enter doctor's full name: ")
-            specialty = input("enter doctor's specialty: ")
-            profile = Medical(doctor_name, specialty)
-            profile.create_doctor_profile()
-        elif option == 2:
-            patient_name = input("enter patient's full name: ")
-            doctor_name = input("enter doctor's full name: ")
-            specialty = input("enter doctor's specialty: ")
-            history = input("enter patient's medical history: ")
-            patient = Medical(patient_name, doctor_name, specialty, history)
+            name = input("Enter patient's first name: ")
+            last_name = input("Enter patient's last name: ")
+            medical_history = input("enter patient's medical history")
+            patient = Patient(name, last_name, medical_history)
             patient.create_history()
+        elif option == 2:
+            patient_id = int(input("Enter patient's id number: "))
+            name = input("Enter patient's first name: ")
+            last_name = input("Enter patient's last name: ")
+            medical_history = input("enter patient's new medical history: ")
+            patient = Patient(name, last_name, medical_history)
+            patient.update_medical_history(patient_id)
         elif option == 3:
-            id = int(input("enter patient's id"))
-            patient_name = input("enter patient's full name: ")
-            doctor_name = input("enter doctor's full name: ")
-            specialty =  input("enter doctor's specialty: ")
-            medical_history = input("Enter new medical history for patient: ")
-            history = Medical(id, patient_name, doctor_name, specialty, medical_history)
+            patient_id = int(input("Enter patient's id number: "))
+            Patient.delete_medical_history(patient_id)
         elif option == 4:
-            id = int(input("enter patient's id you wish to delete: "))
-            patient = Medical()
-            patient.delete_medical_history(id)
+            Patient.view_patients()
         elif option == 5:
-            doctors = Medical()
-            doctors.view_doctors()
+            Patient.export_medical_records()
         elif option == 6:
-            csv_file = Medical()
-            csv_file.export_medical_records()
+            name = input("Enter doctor's first name: ")
+            last_name = input("Enter doctor's last name: ")
+            specialty = input("enter doctor's specialty: ")
+            doctor = Doctor(name, last_name, specialty)
+            doctor.add_doctor()
+        elif option == 7:
+            Doctor.view_doctors()
         elif option == 0:
             break
         else:
-            print("Option not available in menu")
+            print("please enter valid option")
 
 def main():
     connect()
     menu()
-
-
 
 if __name__ == "__main__":
     main()

@@ -7,7 +7,7 @@ class Fibonacci:
         second = 1
         for i in range(self.number):
             print(first)
-            temp = first
+            temp = first 
             first = second
             second = temp + second
 
